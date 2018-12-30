@@ -1,0 +1,111 @@
+---
+title: "AnalyzeCensus"
+author: "Geo"
+date: "28 December 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+# loading libraries
+install.packages("data.table")
+suppressPackageStartupMessages(library(data.table))
+suppressPackageStartupMessages(library(e1071))
+suppressPackageStartupMessages(library(dplyr))
+  
+# reading in dataset
+#require(data.table)
+data <- fread("adult.data")
+
+# data preparation
+col_names <- c("age", "workclass", "fnlwgt", "education", "education_num",
+               "marital_status", "occupation", "relationship", "race", "sex",
+               "capital_gain", "capital_loss", "hours_per_week", "native_country",
+               "income")
+names(data) <- col_names
+```
+```{r}
+head(data)
+```
+```{r}
+# Feature engineerig code
+# creating new labels
+wcollar_prof <- c("Exec-managerial", "Prof-specialty", "Protective-serv", "Sales", "Tech-support")
+dev_nations <- c("Canada", "England", "France", "Germany", "Italy", "Ireland", 
+                 "Japan", "Portugal", "Taiwan", "India", "Holand-Netherlands", "China", "United-Sates")
+gov <- c("Federal-gov", "Local-gov", "State-gov")
+self <- c("Self-emp-inc", "Self-emp-not-inc")
+noHS <- c("10th", "11th", "12th", "1st-4th", "5th-6th", "7th-8th", "9th", "Preschool")
+HS <- c("HS-grad", "Some-college")
+AS <- c("Prof-school", "Assoc-acdm", "Assoc-voc")
+GS <- c("Masters", "Doctorate")
+
+# creating new variables/updating some existing ones
+data$white_collar <- ifelse(data$occupation %in% wcollar_prof, 1, 0)
+data$dev_country <- ifelse(data$native_country %in% dev_nations, 1, 0)
+data$high_income <- ifelse(data$income == ">50K", 1, 0)
+data$lives_w_spouse <- ifelse(data$marital_status %in% 
+                                c("Married-AF-spouse", "Married-civ-spouse"), 1, 0)
+data$worktype <- ifelse(data$workclass %in% gov, "gov", 
+                        ifelse(data$workclass %in% self, "self", 
+                               ifelse(data$workclass == "Private", "private", "other")))
+data$educ_level <- ifelse(data$education %in% HS, "HS-grad", 
+                          ifelse(data$education %in% noHS, "no-HS", 
+                                 ifelse(data$education %in% AS, "CC-grad",
+                                        ifelse(data$education %in% GS, "grad-school", "college"))))
+data$extra_income <- data$capital_gain - data$capital_loss
+data$extra_income <- ifelse(data$extra_income == 0, "none",
+                            ifelse(data$extra_income < 0 , "neg", "pos"))
+data$race <- ifelse(data$race == "White", "white", "nonwhite")
+
+data$white_collar <- as.factor(data$white_collar)
+data$dev_country <- as.factor(data$dev_country)
+data$high_income <- as.factor(data$high_income)
+data$lives_w_spouse <- as.factor(data$lives_w_spouse)
+data$worktype <- as.factor(data$worktype)
+data$educ_level <- as.factor(data$educ_level)
+data$extra_income <- as.factor(data$extra_income)
+
+# dropping previously modified attributes and attributes that will not be used
+data <- data %>% 
+  select(-occupation, -income, -native_country, -marital_status, -workclass, 
+         -education, -fnlwgt, -capital_gain, -capital_loss, -relationship)
+
+#rearranging columns so that high income is the last column
+high_income <- data$high_income
+data <- data %>% select(-high_income)
+data <- cbind(data, high_income)
+``` 
+```{r}
+head(data)
+```
+```{r}
+# function to split data frame
+splitdf <- function(df, seed=NULL, train_fraction=0.8) {
+  if (train_fraction<=0 | train_fraction>=1) stop("Training fraction must be strictly between 0 and 1")
+  if (!is.null(seed)) set.seed(seed)
+  index <- 1:nrow(df)
+  trainindex <- sample(index, trunc(length(index)*train_fraction))
+  trainset <- df[trainindex, ]
+  testset <- df[-trainindex, ]
+  list(trainset=trainset,testset=testset)} 
+
+# using the function to create the partition
+splits <- splitdf(data, seed=26587, train_fraction = .8)
+Train <- as.data.frame(splits[1])
+Test <- as.data.frame(splits[2])
+names(Train) <- names(data)
+names(Test) <- names(data)
+```
+
+```{r}
+#SVM
+svm_model <- svm(high_income ~ ., data = Train)
+svm_p <- predict(svm_model, Test[,-12])
+accuracy <- sum(svm_p==Test$high_income)/length(svm_p)
+accuracy
+```
+

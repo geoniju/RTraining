@@ -1,0 +1,27 @@
+---
+title: "DataManipulation"
+author: "Geo"
+date: "15 December 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+
+```{r cars}
+summary(cars)
+```
+
+## Tidy data
+
+* In tidy data each variable forms a column.
+* Each observation forms a row.
+* Each type of observational unit forms a table.
+
+
+
+
+

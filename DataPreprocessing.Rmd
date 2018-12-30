@@ -1,0 +1,196 @@
+---
+title: "DataPreprocessing"
+author: "Geo"
+date: "16 December 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+
+```{r}
+
+install.packages("ggplot2movies")  # one-time only - do this if you have not done so already
+library(ggplot2movies)  # once per R session
+data(movies)
+
+install.packages("plyr")  # one-time only
+library(plyr)  # once per R session
+data(baseball)
+
+data(ozone)
+
+install.packages("ggplot2")  # one-time only
+library(ggplot2)  # once per R session
+data(diamonds)
+
+  
+install.packages("robustHD")
+library("robustHD")
+
+library(MASS)
+
+library(reshape2)
+
+data(tips)
+```
+is.na
+
+complete.cases
+
+na.omit
+
+na.rm --> argument
+
+```{r}
+mean(movies$length)
+
+mean(movies$budget)
+
+
+mean(movies$budget,na.rm = TRUE)
+
+mean(is.na(movies$budget))
+
+moviesNONA = na.omit(movies)
+qplot(rating,budget,data = moviesNONA, size = I(1.2)) + stat_smooth(color = 'red', size = I(2), se = F)
+
+```
+
+
+Dealing with outlers
+
+Truncating
+Remove outlier values
+Winsorization
+shrink outliers to border of main part of data
+Robustness
+Choose robust procedure for analysis
+
+```{r}
+library(robustHD)
+#Create the data to be Winsorized:
+originalData <- c(1000.0000000  ,  1.8410249 ,  -0.7923505 ,   0.1776514  ,  0.4002135)
+originalData <- c(1000,rnorm(10))
+#Print the data to be Winsorized:
+print(originalData[1:5])
+
+#TODO winsorize the data:
+print(winsorize(originalData))
+
+?winsorize
+```
+
+
+```{r}
+library(dplyr)
+install.packages('dplyr')
+```
+##dplyr functions
+
+* filter
+– select rows
+
+* select
+– select columns
+
+* arrange
+– reorder rows
+
+* mutate
+– create new columns
+
+* rename
+– rename columns
+ 
+group_by
+and 
+summarize
+- aggregate
+
+
+## Filter
+```{r}
+df1 <-filter(mtcars,cyl==4, mpg > 20)
+df2 <-filter(mtcars, cyl==4 & mpg > 20) 
+df3 <-filter(mtcars,cyl %in% c(4, 6) | am ==1)
+```
+
+## Select
+
+df1 <-select(mtcars, mpg,cyl, wt)
+df2 <-select(mtcars, mpg:qsec, carb)
+df3 <-select(mtcars, -am,-carb)
+
+
+
+## arrange
+
+df1 <- arrange(mtcars, desc(cyl))
+df2 <- arrange(mtcars, cyl, mpg)
+df3 <- arrange(mtcars, cyl, desc(mpg))
+
+
+## mutate
+
+df1 <-mutate(mtcars,power = disp * hp,am = factor(am,levels=c(0, 1),
+labels = c("automatic", "manual")))
+
+## rename
+
+df  <- rename(mtcars,displacement = disp,transmission = am)
+
+## group by summarize
+
+
+df <- group_by(mtcars, cyl, gear)
+  
+df2 <- summarise(df,disp_n = mean(disp), disp_sd = sd(disp))
+
+
+df <- group_by(mtcars, cyl, gear)
+
+df2 <- summarise_all(df,funs(mean))
+
+df2 <- summarise_all(df,funs(min,max))
+
+## putting it all together
+
+df <-  select(mtcars, cyl, disp, mpg) %>%
+filter(mpg > 20) %>% arrange(cyl, desc(mpg))
+
+## Calculating percentages
+
+
+mtcars %>%  group_by(cyl) %>% summarise(n = n()) %>% mutate(pct= n/sum(n))
+
+
+
+as.data.frame(mtcars%>%  group_by(cyl) %>%summarise(n = n()) %>%mutate(pct =paste0(round(100 * n/sum(n), 0), "%")))
+
+
+as.data.frame(mtcars%>%  group_by(cyl, gear) %>%summarise(n = n()) %>%mutate(pct =paste0(round(100 * n/sum(n), 0), "%")))
+
+
+## Windows functions (min_rank)
+
+
+# what are the 2 automatic transmission cars and 
+# 2 manual transmission cars that have the lowest gas mileage?
+
+mtcars$name <- row.names(mtcars)
+mtcars%>%  group_by(am) %>% filter(min_rank(mpg) <= 2) %>% 
+select(name, am, mpg) 
+
+# have the highest gas mileage?
+
+mtcars %>%  group_by(am) %>% filter(min_rank(desc(mpg)) <= 2) %>% 
+select(name, am, mpg)
+
+
+
+
+
+

@@ -1,0 +1,115 @@
+---
+title: "DataCleaning"
+author: "Geo"
+date: "18 December 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+```{r}
+pkgs <- c('reshape2', 'plyr', 'ggplot2', 'dplyr', 'data.table', 'Lahman')
+install.packages(pkgs)
+```
+
+
+```{r}
+
+
+
+pew <- read.delim(
+  file = "http://stat405.had.co.nz/data/pew.txt",
+  header = TRUE,
+  stringsAsFactors = FALSE,
+  check.names = F
+)
+
+
+tb <- read.csv(
+  file = "http://stat405.had.co.nz/data/tb.csv",
+  header = TRUE, 
+  stringsAsFactors = FALSE
+)
+
+
+
+weather <- read.delim(
+  file = "http://stat405.had.co.nz/data/weather.txt",
+  stringsAsFactors = FALSE
+)
+```
+
+Causes of Messiness
+
+There are various features of messy data that one can observe in practice. Here are some of the more commonly observed patterns.
+
+Column headers are values, not variable names
+Multiple variables are stored in one column
+Variables are stored in both rows and columns
+Multiple types of experimental unit stored in the same table
+One type of experimental unit stored in multiple tables
+
+
+
+
+```{r}
+library(reshape2)
+pew_tidy <- melt(
+  data = pew,
+  id = "religion",
+  variable.name = "income",
+  value.name = "frequency"
+)
+```
+```{r}
+bnames2 <- read.csv("bnames2.csv")
+
+
+greg <- subset(bnames2, name == "Greg")
+```
+```{r}
+
+```
+
+```{r}
+michelle <- subset(bnames2, name == "Michelle")
+qplot(x = year, y = prop, data = michelle, geom = 'line')
+
+
+qplot(x = year, y = prop, data = michelle, geom = 'point')
+
+qplot(x = year, y = prop, data = michelle, geom = 'line', group = sex)
+
+
+greg_soundex = greg$soundex[1]
+greg_like <- subset(bnames2, soundex == greg_soundex)
+qplot(x = year, y = prop, data = greg_like, geom = 'point')
+```
+Data Manipulation Verbs
+
+It is good to think of data manipulation in terms of verbs. Those of you who have used SQL or pandas might be familiar with these already. Here are some basic verbs that we will be exploring
+
+subset
+mutate
+arrange
+summarize
+join
+
+
+```{r}
+births <- read.csv("births.csv")
+qplot(year, births, data = births, color = sex, geom = 'line')
+
+```
+Join
+
+we need a way to join the births data with bnames2 so that we can compute total numbers.
+
+
+```{r}
+library(plyr)
+bnames2_b <- join(bnames2, births, by = c("sex", "year"))
+```
+
+

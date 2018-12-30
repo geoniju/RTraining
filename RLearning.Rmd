@@ -1,0 +1,324 @@
+---
+title: "Learning"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+d <- 5
+mode(d)
+
+f <- "This is a string"
+mode(f)
+``` 
+
+
+
+
+
+```{r}
+A <- "Gomphotherium"; compar<- TRUE; z <- 1i
+
+mode(A); mode(compar); mode(z)
+```   
+Whatever the mode missing data is represented by NA. 
+A very lare numeric value can be specified with an exponential notation
+```{r}
+N <- 2.1e23
+```
+R correctly represents non-finite numeric values.
+```{r}
+x <- 5/0
+exp(x)
+exp(-x)
+```
+
+ A value of mode character is input with double quotes
+ 
+```{r}
+x <- "Double quotes \" delimitateR's strings." 
+cat(x)
+```
+ 
+In R variables are not declared as some datatype. The variables are assigned with R objects and the datatype of the R object becomes the datatype of the variable.
+
+
+Objects in R
+
+Vector
+Factor
+Array
+Matrix
+Data frame
+list
+
+A vector is a variable in the commonly admitted meaning.
+
+
+```{r}
+#Logical
+
+v <- TRUE 
+print(class(v))
+
+v <- 23.5
+print(class(v))
+
+v <- 2L
+print(class(v))
+
+v <- 2+5i
+print(class(v))
+
+v <- "TRUE"
+print(class(v))
+
+v <- charToRaw("Hello")
+print(class(v))
+print(mode(v))
+typeof(v)
+
+```
+
+
+
+When you want to create vector with more than one element you should use c() function
+which means to combine the elements into a vector.
+```{r}
+# Create a vector.
+apple <- c('red','green',"yellow")
+print(apple)
+
+# Get the class of the vector.
+print(class(apple))
+```
+
+
+
+
+
+Lists
+
+A list is an R-object which can contain many different types of elements inside it like vectors, functions and even another list inside it.   
+```{r}
+# Create a list.
+list1 <- list(c(2,5,3),21.3,sin)
+
+# Print the list.
+print(list1)
+
+```
+
+
+
+
+Matrices
+
+A matrix is a two-dimensional rectangular data set. It can be created using a vector input to the matrix function.
+```{r}
+# Create a matrix.
+M = matrix( c('a','a','b','c','b','a'), nrow = 2, ncol = 3, byrow = TRUE)
+print(M)
+
+```
+
+
+
+Arrays
+
+While matrices are confined to two dimensions, arrays can be of any number of dimensions.
+
+
+```{r}
+# Create an array.
+a <- array(c('green','yellow'),dim = c(3,3,2))
+print(a)
+```
+
+
+
+Factors
+
+A factor is a categorical variable. Factors are the r-objects which are created using a vector. It stores the vector along with the distinct values of the elements in the vector as labels. The labels are always character irrespective of whether it is numeric or character or Boolean etc.
+
+
+```{r}
+# Create a vector.
+apple_colors <- c('green','green','yellow','red','red','red','green')
+
+# Create a factor object.
+factor_apple <- factor(apple_colors)
+
+# Print the factor.
+print(factor_apple)
+print(nlevels(factor_apple))
+```
+
+
+
+Data Frames
+
+Data frames are tabular data objects. Unlike a matrix in data frame each column can contain different modes of data. The first column can be numeric while the second column can be character and third column can be logical. It is a list of vectors of equal length.
+
+```{r}
+# Create the data frame.
+BMI <- 	data.frame(
+   gender = c("Male", "Male","Female"), 
+   height = c(152, 171.5, 165), 
+   weight = c(81,93, 78),
+   Age = c(42,38,26)
+)
+print(BMI)
+
+```
+
+
+
+1. Run the following command to see what it does.
+```{r}
+summary(mtcars)
+```
+
+The str() and summary() functions are helpful commands when working with a new data set.
+The str() function gives us the variable names and their types.
+The summary() function gives us an idea of the values a variable can take on.
+
+
+```{r}
+str(mtcars)
+efficient <- subset(mtcars,mpg>=23)
+dim(mtcars)
+```
+
+3. How many cars get more than 23 mpg? 
+```{r}
+dim(efficient)
+```
+
+4. We can also use logical operators to find out which car(s) get greater
+than 30 miles per gallon (mpg) and have more than 100 raw horsepower.
+```{r}
+subset(mtcars, mpg > 30 & hp > 100)
+```
+
+There's only one car that gets more than 30 mpg and 100 hp.
+
+5. What do you think this code does? Scroll down for the answer.
+```{r}
+subset(mtcars, mpg < 14 | disp > 390)
+```
+
+Note: You may be familiar with the || operator in Java. R uses one single & for the logical
+operator AND. It also uses one | for the logical operator OR.
+
+
+
+
+The command above creates a data frame of cars that have mpg less than 14
+OR a displacement of more than 390. Only one of the conditions for a car
+needs to be satisfied so that the car makes it into the subset. Any of the
+cars that fit the criteria are printed to the console.
+
+
+6. Print the cars that have a 1/4 mile time (qsec) less than or equal to
+16.90 seconds to the console.
+```{r}
+subset(mtcars,qsec<=16.90)
+```
+
+7. Save the subset of cars that weigh under 2000 pounds (weight is measured in lb/1000)
+to a variable called lightCars. Print the numbers of cars and the subset to the console.
+```{r}
+lightcars<-subset(mtcars,wt<2000)
+
+dim(lightcars)
+```
+
+8. You can also create new variables in a data frame. Let's say you wanted
+to have the year of each car's model. We can create the variable
+mtcars$year. Here we'll assume that all of the models were from 1974.
+Run the code below.
+```{r}
+mtcars$year <- 1974
+```
+
+Notice how the number of variables changed in the work space. You can
+also see the result by double clicking on mtcars in the workspace and
+examining the data in a table.
+
+To drop a variable, subset the data frame and select the variable you
+want to drop with a negative sign in front of it.
+```{r}
+mtcars <- subset(mtcars, select = -year)
+```
+
+Notice, we are back to 11 variables in the data frame.
+
+9. What do you think this code does? Run it to find out.
+```{r}
+mtcars$year <- c(1973, 1974)
+```
+
+Open the table of values to see what values year takes on.
+
+Drop the year variable from the data set.
+```{r}
+mtcars <- subset(mtcars,select = -year)
+```
+
+
+10. Now you are going to get a preview of ifelse(). 
+
+```{r}
+mtcars$wt
+cond <- mtcars$wt < 3
+cond
+mtcars$weight_class <- ifelse(cond, 'light', 'average')
+mtcars$weight_class
+cond <- mtcars$wt > 3.5
+mtcars$weight_class <- ifelse(cond, 'heavy', mtcars$weight_class)
+mtcars$weight_class
+```
+
+You have some variables in your workspace or environment like 'cond' and
+efficient. You want to be careful that you don't bring in too much data
+into R at once since R will hold all the data in working memory. 
+let's delete those variables from the work space.
+
+```{r}
+rm(cond)
+rm(efficient)
+```
+
+
+
+```{r}
+#install.packages('knitr', dependencies = T)
+#library(knitr)
+```
+
+
+Which car(s) have an mpg (miles per gallon) greater than or equal to 30
+OR hp (horsepower) less than 60? Create an R chunk of code to answer the question.
+
+```{r}
+subset(mtcars,mpg>=30|hp<60)
+mtcars[mtcars$mpg>=30 | mtcars$hp<60,]
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
